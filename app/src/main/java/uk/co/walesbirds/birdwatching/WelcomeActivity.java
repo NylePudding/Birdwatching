@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,9 +39,9 @@ import java.util.List;
 
 public class WelcomeActivity extends AppCompatActivity {
 
-    Button btnListBirds;
-    Button btnUpdate;
-    Button btnSettings;
+    ImageButton btnListBirds;
+    ImageButton btnUpdate;
+    ImageButton btnSettings;
     TextView txtWelcome;
     ProgressDialog mProgressDialog;
 
@@ -49,9 +50,9 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        btnListBirds = (Button) findViewById(R.id.btnListBirds);
-        btnUpdate = (Button) findViewById(R.id.btnUpdate);
-        btnSettings = (Button) findViewById(R.id.btnSettings);
+        btnListBirds = (ImageButton) findViewById(R.id.ibtnListBirds);
+        btnUpdate = (ImageButton) findViewById(R.id.ibtnUpdate);
+        btnSettings = (ImageButton) findViewById(R.id.ibtnSettings);
         txtWelcome = (TextView) findViewById(R.id.txtWelcome);
 
         if (Globals.english){
