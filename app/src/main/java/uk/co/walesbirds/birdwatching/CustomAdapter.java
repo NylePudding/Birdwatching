@@ -51,7 +51,8 @@ class CustomAdapter extends BaseAdapter {
     }
 
     public int getPosition(int position) {
-        return position - sectionHeader.headSet(position).size();
+        //return position - sectionHeader.headSet(position).size();
+        return position;
     }
 
     @Override

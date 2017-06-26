@@ -84,9 +84,11 @@ public class ListBirdsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id) {
                 System.out.println("Position - " + mAdapter.getPosition(position));
-                System.out.println("String - " + mAdapter.getItem(mAdapter.getPosition(position) + 1));
-                Globals.selectedBird = mAdapter.getItem(mAdapter.getPosition(position) + 1);
-                startActivity(new Intent(ListBirdsActivity.this, ViewBirdActivity.class));
+                System.out.println("String - " + mAdapter.getItem(mAdapter.getPosition(position)));
+                Globals.selectedBird = mAdapter.getItem(mAdapter.getPosition(position));
+                if (mAdapter.getItemViewType(position) == 0) {
+                    startActivity(new Intent(ListBirdsActivity.this, ViewBirdActivity.class));
+                }
             }
         });
 

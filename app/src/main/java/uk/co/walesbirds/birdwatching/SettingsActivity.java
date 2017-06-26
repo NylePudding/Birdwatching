@@ -32,6 +32,8 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Globals.english = !(Globals.english);
+
+
                 System.out.println("ENGLISH??? " + Globals.english);
             }
 
