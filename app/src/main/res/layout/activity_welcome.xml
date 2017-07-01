@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="uk.co.walesbirds.birdwatching.WelcomeActivity">
+    tools:context="uk.co.walesbirds.birdwatching.WelcomeActivity"
+    android:background="@drawable/background1"
+    >
 
     <TextView
         android:id="@+id/txtVer"
@@ -69,13 +71,14 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="340dp"
-        android:layout_height="112dp"
-        app:srcCompat="@drawable/logo"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="28dp"
+        android:layout_height="105dp"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent" />
+        android:layout_marginTop="26dp"
+        android:background="@color/colorBackground"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo" />
 
 </android.support.constraint.ConstraintLayout>
