@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -147,6 +148,14 @@ public class ListBirdsActivity extends AppCompatActivity {
 
         adapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.bird_name, getBirdList());
         lstBirds.setAdapter(adapter);
+
+        lstBirds.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parent, View v, int position, long id) {
+                Globals.selectedBird = adapter.getItem(position);
+                startActivity(new Intent(ListBirdsActivity.this, ViewBirdActivity.class));
+            }
+        });
 
     }
 

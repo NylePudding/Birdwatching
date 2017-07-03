@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -76,8 +77,10 @@ public class WelcomeActivity extends AppCompatActivity {
                 if (!isFileExistant()){
                     download();
                 }
+                if (Globals.Birds.BirdEntries.size() == 0){
+                    initiateBirdEntries();
+                }
 
-                initiateBirdEntries();
                 startActivity(new Intent(WelcomeActivity.this, ListBirdsActivity.class));
             }
         });
@@ -93,6 +96,9 @@ public class WelcomeActivity extends AppCompatActivity {
         btnSettings.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                if (Globals.Birds.BirdEntries.size() == 0){
+                    initiateBirdEntries();
+                }
                 startActivity(new Intent(WelcomeActivity.this, SettingsActivity.class));
             }
         });
