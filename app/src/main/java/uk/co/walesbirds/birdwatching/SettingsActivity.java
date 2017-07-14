@@ -21,6 +21,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ *
+ */
 public class SettingsActivity extends AppCompatActivity {
 
 
@@ -41,6 +44,11 @@ public class SettingsActivity extends AppCompatActivity {
         btnReloadPictures = (Button) findViewById(R.id.btnReloadPictures);
         btnDeletePictures = (Button) findViewById(R.id.btnDeletePictures);
 
+        if (!Globals.english){
+            swLanguage.setChecked(true);
+            swLanguage.setText("Welsh");
+        }
+
 
         swLanguage.setOnClickListener(new View.OnClickListener() {
 
@@ -48,6 +56,11 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Globals.english = !(Globals.english);
 
+                if (Globals.english){
+                    swLanguage.setText("English");
+                } else {
+                    swLanguage.setText("Welsh");
+                }
 
                 System.out.println("ENGLISH??? " + Globals.english);
             }
@@ -66,6 +79,16 @@ public class SettingsActivity extends AppCompatActivity {
 
         });
 
+        btnReloadPictures.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                System.out.println("Number of pictures: " + countPictures());
+                redownloadPictures();
+            }
+
+        });
+
         btnDeletePictures.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -76,6 +99,20 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Method to check if there is an existing image
+     * @param fileName
+     * @return boolean If the image exists
+     */
+    private boolean isImageExistant(String fileName){
+        File file = getBaseContext().getFileStreamPath(fileName);
+        return file.exists();
+    }
+
+    /**
+     * Counts the number of picture links in the list of Bird Entries
+     * @return int number of picture links
+     */
     private int countPictures(){
         int count = 0;
 
@@ -88,18 +125,98 @@ public class SettingsActivity extends AppCompatActivity {
         return count;
     }
 
+    /**
+     * Counts the number of picture links in the list of Bird Entries
+     * @return int number of picture links
+     */
+    private int countUpdatedPictures(){
+        int count = 0;
+
+        for (BirdEntry bEn : Globals.Birds.BirdEntries){
+            if (!bEn.getPictureLink().equals("")){
+                if (!isImageExistant(bEn.getEnglish().replace(" ","_") + ".jpg")) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Downloads and updates all the pictures saved in the internal storage
+     */
     private void updatePictures(){
 
         int totalPictures = countPictures();
         int count = 1;
 
+        //Create a process dialogue for the download
         mProgressDialog = new ProgressDialog(SettingsActivity.this);
         mProgressDialog.setMessage("Downloading pictures... " + count + "/" + totalPictures);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCancelable(true);
 
+        //Create a Download task and supply in with all the file names
+        final DownloadTask downloadTask = new SettingsActivity.DownloadTask(SettingsActivity.this, getUpdatedFileNames());
+        //Execute the Download Task with all the picture links
+        downloadTask.execute(getUpdatedPictureLinks());
+
+        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                downloadTask.cancel(true);
+            }
+
+        });
+
+        count++;
+    }
+
+    /**
+     *  Deletes all the picture in the internal storage
+     */
+    private void deletePictures() {
+
+        File dir = getFilesDir();
+
+        int count = 0;
+
+        for (BirdEntry bEn : Globals.Birds.BirdEntries){
+
+            if (!bEn.getPictureLink().equals("")){
+
+                String fileName = bEn.getEnglish().replace(" ","_");
+                File file = getBaseContext().getFileStreamPath(fileName);
+                boolean deleted = file.delete();
+
+                if (deleted)
+                    System.out.println("DELETED - " + count++);
+                else
+                    System.out.println("NOT DELETED");
+            }
+        }
+
+    }
+
+    /**
+     * Redownloads all the pictures to the internal storage
+     */
+    private void redownloadPictures(){
+        int totalPictures = countPictures();
+        int count = 1;
+
+        //Create a process dialogue for the download
+        mProgressDialog = new ProgressDialog(SettingsActivity.this);
+        mProgressDialog.setMessage("Downloading pictures... " + count + "/" + totalPictures);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        mProgressDialog.setCancelable(true);
+
+        //Create a Download task and supply in with all the file names
         final DownloadTask downloadTask = new SettingsActivity.DownloadTask(SettingsActivity.this, getFileNames());
+        //Execute the Download Task with all the picture links
         downloadTask.execute(getPictureLinks());
 
         mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -113,58 +230,76 @@ public class SettingsActivity extends AppCompatActivity {
         count++;
     }
 
-    private void deletePictures() {
-
-        File dir = getFilesDir();
-
-        int count = 0;
-
-        for (BirdEntry bEn : Globals.Birds.BirdEntries){
-
-            if (!bEn.getPictureLink().equals("")){
-
-                String fileName = bEn.getEnglish().replace("","_");
-                File file = getBaseContext().getFileStreamPath(fileName);
-                boolean deleted = file.delete();
-
-                if (deleted)
-                    System.out.println("DELETED - " + count++);
-                else
-                    System.out.println("NOT DELETED");
-            }
-        }
-
-    }
-
-    private void redownloadPictures(){
-
-    }
-
+    /**
+     * Gets all the picture links in the list of Bird Entries
+     * @return String[] All the picture links
+     */
     private String [] getPictureLinks() {
         String [] fileNames = new String[countPictures()];
 
         int i = 0;
 
         for (BirdEntry bEn : Globals.Birds.BirdEntries){
+            //If the picture link is not blank
             if(!bEn.getPictureLink().equals("")) fileNames[i++] = bEn.getPictureLink();
         }
 
         return fileNames;
     }
 
+    /**
+     * Gets all the picture links in the list of Bird Entries
+     * @return String[] All the picture links
+     */
+    private String [] getUpdatedPictureLinks() {
+        String [] fileNames = new String[countUpdatedPictures()];
+
+        int i = 0;
+
+        for (BirdEntry bEn : Globals.Birds.BirdEntries){
+            //If the picture link is not blank
+            if (!isImageExistant(bEn.getEnglish().replace(" ","_") + ".jpg")) {
+                if (!bEn.getPictureLink().equals("")) fileNames[i++] = bEn.getPictureLink();
+            }
+        }
+
+        return fileNames;
+    }
+
+    /**
+     * Gets all the file names of the pictures to-be saved to internal storage
+     * @return String[] All the file names
+     */
     private String [] getFileNames() {
         String [] pictureLinks = new String [countPictures()];
 
         int i = 0;
 
         for (BirdEntry bEn : Globals.Birds.BirdEntries){
-            if(!bEn.getPictureLink().equals("")) pictureLinks[i++] = bEn.getEnglish().replace("","_") + ".jpg";
+            if(!bEn.getPictureLink().equals("")) pictureLinks[i++] = bEn.getEnglish().replace(" ","_") + ".jpg";
         }
 
         return pictureLinks;
     }
 
+    private String [] getUpdatedFileNames() {
+        String [] pictureLinks = new String [countPictures()];
 
+        int i = 0;
+
+        for (BirdEntry bEn : Globals.Birds.BirdEntries){
+            if (!isImageExistant(bEn.getEnglish().replace(" ","_") + ".jpg")) {
+                if (!bEn.getPictureLink().equals(""))
+                    pictureLinks[i++] = bEn.getEnglish().replace(" ", "_") + ".jpg";
+            }
+        }
+
+        return pictureLinks;
+    }
+
+    /**
+     * Asynchronous task for Downloading multiple pictures
+     */
     private class DownloadTask extends AsyncTask<String, Integer, String> {
 
         private Context context;

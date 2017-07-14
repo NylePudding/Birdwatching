@@ -11,7 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import java.io.File;
+import java.io.FileInputStream;
 
 public class ViewBirdActivity extends AppCompatActivity {
 
@@ -34,10 +38,13 @@ public class ViewBirdActivity extends AppCompatActivity {
         bird = findBird(english);
 
         populateDetails(bird);
-
-
     }
 
+    /**
+     * Method for finding the BirdEntry using the english as the primary key
+     * @param english
+     * @return BirdEntry The found BirdEntry, null if not found
+     */
     private BirdEntry findBird(String english){
 
         BirdEntry birdEntry = null;
@@ -52,6 +59,10 @@ public class ViewBirdActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Method for populating the details with the BirdEntry for reading
+     * @param birdEntry
+     */
     private void populateDetails(BirdEntry birdEntry){
 
         if (Globals.english){
@@ -68,12 +79,12 @@ public class ViewBirdActivity extends AppCompatActivity {
 
         if (!birdEntry.getPictureLink().equals("")){
 
-            String fileName = birdEntry.getEnglish().replace("","_") + ".jpg";
+            String fileName = birdEntry.getEnglish().replace(" ","_") + ".jpg";
 
             if (isImageExistant(fileName)){
-                Toast.makeText(ViewBirdActivity.this,"EXISTS", Toast.LENGTH_LONG).show();
                 File imgFile = getBaseContext().getFileStreamPath(fileName);
-                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getPath());
+                Toast.makeText(ViewBirdActivity.this,myBitmap.getHeight() + "," + myBitmap.getWidth(), Toast.LENGTH_LONG).show();
                 imgBird.setImageBitmap(myBitmap);
             } else {
                 Toast.makeText(ViewBirdActivity.this,"DOES NOT EXIST", Toast.LENGTH_LONG).show();
@@ -81,14 +92,32 @@ public class ViewBirdActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Method to check if there is an existing image
+     * @param fileName
+     * @return boolean If the image exists
+     */
     private boolean isImageExistant(String fileName){
         File file = getBaseContext().getFileStreamPath(fileName);
         return file.exists();
     }
 
+    /**
+     * Method for getting the english from the selected BirdEntry String
+     * @return String The English name of the bird
+     */
     private String getEnglish(){
         String selected[] = Globals.selectedBird.split("\n", -1);
-        return selected[0];
+
+        String english = "";
+
+        if (Globals.english){
+            english = selected[0];
+        } else {
+            english = selected[1];
+        }
+
+        return english;
 
     }
 }

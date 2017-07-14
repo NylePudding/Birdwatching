@@ -56,6 +56,8 @@ public class WelcomeActivity extends AppCompatActivity {
         btnSettings = (ImageButton) findViewById(R.id.ibtnSettings);
         txtWelcome = (TextView) findViewById(R.id.txtWelcome);
 
+        download();
+
         if (Globals.english){
             txtWelcome.setText("Select a category for translations");
         }
@@ -105,15 +107,39 @@ public class WelcomeActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+
+        if (Globals.english){
+            txtWelcome.setText("Select a category for translations");
+        }
+        else {
+            txtWelcome.setText("<WELSH PLACEHOLDER TEXT>");
+        }
+    }
+
+    /**
+     * Method for checking if the bird file exists on internal storage
+     * @return boolean If the file is existant
+     */
     private boolean isFileExistant(){
         File file = getBaseContext().getFileStreamPath("birds.csv");
         return file.exists();
     }
 
+    /**
+     * Methods for checking if the file is up to date
+     * @return boolean If the file is up to date
+     */
     private boolean isFileUpToDate(){
         return true;
     }
 
+    /**
+     * Method for initiating all the BirdEntry objects from "birds.csv" for reading
+     */
     private void initiateBirdEntries(){
 
         InputStream is = null;
@@ -173,12 +199,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 count++;
             }
 
-            for (BirdEntry bEn : Globals.Birds.BirdEntries){
-                //System.out.println(bEn.getEnglish());
-            }
-
-            System.out.println("Number of birds: " + Globals.Birds.BirdEntries.size());
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -186,6 +206,11 @@ public class WelcomeActivity extends AppCompatActivity {
         Collections.sort(Globals.Birds.BirdEntries);
     }
 
+    /**
+     * Method for getting the column indexes for the different birds
+     * @param line The line of column headings
+     * @return int[] The indexes for teh column headings
+     */
     private static int[] getColumnIndexes(String line){
 
         int[] indexes = new int[18];
@@ -210,6 +235,9 @@ public class WelcomeActivity extends AppCompatActivity {
         return indexes;
     }
 
+    /**
+     * Asynchronous task for downloading the Bird data file
+     */
     private class DownloadTask extends AsyncTask<String, Integer, String> {
 
         private Context context;
@@ -314,6 +342,9 @@ public class WelcomeActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Method for downloading the Bird data file
+     */
     private void download(){
 
         mProgressDialog = new ProgressDialog(WelcomeActivity.this);

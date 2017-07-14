@@ -19,12 +19,17 @@ import java.util.TreeSet;
 
 class CustomAdapter extends BaseAdapter implements Filterable {
 
-    private static final int TYPE_ITEM = 0;
+    private static final int TYPE_GENERAL = 0;
     private static final int TYPE_SEPARATOR = 1;
+    private static final int TYPE_RARE = 2;
+    private static final int TYPE_WINTER = 3;
+    private static final int TYPE_SUMMER = 4;
 
     private ArrayList<String> mData = new ArrayList<String>();
-    private List<String>filteredData = null;
-    private TreeSet<Integer> sectionHeader = new TreeSet<Integer>();
+    private ArrayList<String> mKey = new ArrayList<>();
+    private List<String>filteredData = new ArrayList<String>();
+    private TreeSet<Integer> sectionHeader = new TreeSet<>();
+    private TreeSet<Integer> generalItem = new TreeSet<>();
 
     private LayoutInflater mInflater;
     private ItemFilter mFilter = new ItemFilter();
@@ -34,20 +39,54 @@ class CustomAdapter extends BaseAdapter implements Filterable {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addItem(final String item) {
-        mData.add(item);
+    public void addGeneral(final BirdEntry bEn) {
+
+        if (Globals.english) {
+            mData.add(bEn.getEnglish() + "\n" + bEn.getWelsh());
+        } else {
+            mData.add(bEn.getWelsh() + "\n" + bEn.getEnglish());
+        }
+
+        String key = getKey(bEn);
+        mKey.add(key);
+
+        //filteredData.add(item);
+        generalItem.add(mData.size() - 1);
         notifyDataSetChanged();
+    }
+
+    public String getKey(BirdEntry bEn) {
+        String key = "GENERAL";
+        if (bEn.getRare().equals("R")){
+            key = "RARE";
+        }
+        if (bEn.getVisitor().equals("WINTER")){
+            key = "WINTER";
+        }
+        if (bEn.getVisitor().equals("SUMMER")){
+            key = "SUMMER";
+        }
+
+        return key;
     }
 
     public void addSectionHeaderItem(final String item) {
         mData.add(item);
+        //filteredData.add(item);
         sectionHeader.add(mData.size() - 1);
         notifyDataSetChanged();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return sectionHeader.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
+
+        if (sectionHeader.contains(position)){
+            return TYPE_SEPARATOR;
+        }
+        else {
+            return TYPE_GENERAL;
+        }
+
     }
 
     @Override
@@ -68,7 +107,10 @@ class CustomAdapter extends BaseAdapter implements Filterable {
     @Override
     public String getItem(int position) {
         return mData.get(position);
+
     }
+
+
 
     @Override
     public long getItemId(int position) {
@@ -82,12 +124,12 @@ class CustomAdapter extends BaseAdapter implements Filterable {
         if (convertView == null) {
             holder = new ViewHolder();
             switch (rowType) {
-                case TYPE_ITEM:
-                    convertView = mInflater.inflate(R.layout.snippet_item1, null);
-                    holder.textView = (TextView) convertView.findViewById(R.id.text);
+                case TYPE_GENERAL:
+                    convertView = mInflater.inflate(R.layout.bird_general, null);
+                    holder.textView = (TextView) convertView.findViewById(R.id.general);
                     break;
                 case TYPE_SEPARATOR:
-                    convertView = mInflater.inflate(R.layout.snippet_item2, null);
+                    convertView = mInflater.inflate(R.layout.separator, null);
                     holder.textView = (TextView) convertView.findViewById(R.id.textSeparator);
                     break;
             }
@@ -101,6 +143,44 @@ class CustomAdapter extends BaseAdapter implements Filterable {
         //holder.textView.setText(filteredData.get(position));
 
         return convertView;
+    }
+
+    /**
+     * Method for finding the BirdEntry using the english as the primary key
+     * @param english
+     * @return BirdEntry The found BirdEntry, null if not found
+     */
+    private BirdEntry findBird(String english){
+
+        BirdEntry birdEntry = null;
+
+        for (BirdEntry bEn : Globals.Birds.BirdEntries){
+            if (bEn.getEnglish().equals(english)){
+                birdEntry = bEn;
+                System.out.println("FOUND");
+            }
+        }
+        return birdEntry;
+
+    }
+
+    /**
+     * Method for getting the english from the selected BirdEntry String
+     * @return String The English name of the bird
+     */
+    private String getEnglish(String bird){
+        String selected[] = bird.split("\n", -1);
+
+        String english = "";
+
+        if (Globals.english){
+            english = selected[0];
+        } else {
+            english = selected[1];
+        }
+
+        return english;
+
     }
 
     @Override
