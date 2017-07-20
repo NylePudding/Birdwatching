@@ -8,8 +8,10 @@
         android:id="@+id/tvWinter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0099ff"
+        android:background="#780099ff"
         android:padding="10dp"
+        android:textSize="16dp"
+        android:textColor="#ffffff"
         android:text="Item" />
 
 </LinearLayout>

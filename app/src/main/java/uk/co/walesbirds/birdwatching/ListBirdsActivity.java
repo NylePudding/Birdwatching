@@ -1,7 +1,9 @@
 package uk.co.walesbirds.birdwatching;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -27,7 +29,6 @@ public class ListBirdsActivity extends AppCompatActivity {
     private TextView txtAll;
     private TextView txtKey;
     private ArrayAdapter<String> adapter;
-    private CustomAdapter mAdapter;
     private EditText inputSearch;
     private boolean ukList = true;
 
@@ -43,36 +44,8 @@ public class ListBirdsActivity extends AppCompatActivity {
         lstBirds = (ListView) findViewById(R.id.lstBirds);
         inputSearch = (EditText) findViewById(R.id.txtSearch);
 
-        //populateBirdList();
-        //populateBirdListCustomAdapter();
-        THISTIME();
-        //populateBirdListSearchableAdapter();
 
-        /*
-        inputSearch.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                // When user changed the Text
-                ListBirdsActivity.this.mAdapter.getFilter().filter(cs);
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                          int arg3) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-                // TODO Auto-generated method stub
-            }
-        });
-        */
-
-
-
+        populateBirdList();
 
         txtUkList.setOnClickListener(new View.OnClickListener() {
 
@@ -80,7 +53,7 @@ public class ListBirdsActivity extends AppCompatActivity {
             public void onClick(View v){
 
                 ukList = (!ukList);
-                populateBirdListCustomAdapter();
+                populateBirdList();
 
             }
         });
@@ -96,6 +69,7 @@ public class ListBirdsActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v){
+                displayKey();
             }
         });
 
@@ -118,82 +92,39 @@ public class ListBirdsActivity extends AppCompatActivity {
         return birdNames;
     }
 
-
-
-    private void populateBirdListCustomAdapter() {
-
-        //List<String> birdNames = new ArrayList<String>();
-
-        mAdapter = new CustomAdapter(this);
-
-        String lastCategory = "";
-
-        for (BirdEntry bEn : Globals.Birds.BirdEntries) {
-
-            if (ukList) {
-                if (bEn.getLocation().equals("UK")) {
-                    if (!lastCategory.equals(bEn.getCategory())) {
-                        mAdapter.addSectionHeaderItem(bEn.getCategory());
+    private void displayKey(){
+        AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
+        dlgAlert.setMessage("Yellow - Summer visitors to UK\nBlue - Winder visitors to UK\nRed - Rare visitors or bird that has escaped from a collection");
+        dlgAlert.setTitle("Bird Key");
+        dlgAlert.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dismiss the dialog
                     }
-
-                    lastCategory = bEn.getCategory();
-                    if (Globals.english) {
-                        mAdapter.addGeneral(bEn);
-                        //birdNames.add(bEn.getEnglish() + "\n" + bEn.getWelsh());
-
-                    } else {
-                        mAdapter.addGeneral(bEn);
-                        //birdNames.add(bEn.getWelsh() + "\n" + bEn.getEnglish());
-                    }
-                }
-            }
-            else {
-                if (!lastCategory.equals(bEn.getCategory())) {
-                    mAdapter.addSectionHeaderItem(bEn.getCategory());
-                }
-                lastCategory = bEn.getCategory();
-                if (Globals.english) {
-                    //birdNames.add(bEn.getEnglish() + "\n" + bEn.getWelsh());
-                    mAdapter.addGeneral(bEn);
-                } else {
-                    //birdNames.add(bEn.getWelsh() + "\n" + bEn.getEnglish());
-                    mAdapter.addGeneral(bEn);
-                }
-            }
-        }
-
-        lstBirds.setAdapter(mAdapter);
-
-        lstBirds.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView parent, View v, int position, long id) {
-                Globals.selectedBird = mAdapter.getItem(mAdapter.getPosition(position));
-                if (mAdapter.getItemViewType(position) == 0) {
-                    startActivity(new Intent(ListBirdsActivity.this, ViewBirdActivity.class));
-                }
-            }
-        });
-
-
+                });
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
     }
 
     public String getKey(BirdEntry bEn) {
         String key = "GENERAL";
-        if (bEn.getRare().equals("R")){
+        if (bEn.getRare().toUpperCase().equals("R")){
             key = "RARE";
         }
-        if (bEn.getVisitor().equals("WINTER")){
+        if (bEn.getVisitor().toUpperCase().equals("WINTER")){
             key = "WINTER";
         }
-        if (bEn.getVisitor().equals("SUMMER")){
+        if (bEn.getVisitor().toUpperCase().equals("SUMMER")){
             key = "SUMMER";
         }
 
         return key;
     }
 
-
-    private void THISTIME(){
+    /**
+     * Populates the adapter with a list of all the birds
+     */
+    private void populateBirdList(){
 
         ArrayList<Item> birdList = new ArrayList<Item>();
 
@@ -203,10 +134,10 @@ public class ListBirdsActivity extends AppCompatActivity {
 
             if (ukList) {
                 if (bEn.getLocation().equals("UK")) {
-                    if (!lastCategory.equals(bEn.getCategory())) {
-                        birdList.add(new SectionItem(bEn.getCategory()));
+                    if (!lastCategory.equals(bEn.getSubcategory())) {
+                        birdList.add(new SectionItem(bEn.getCategory() + " / " + bEn.getSubcategory()));
                     }
-                    lastCategory = bEn.getCategory();
+                    lastCategory = bEn.getSubcategory();
                     if (Globals.english) {
 
                         String key = getKey(bEn);
@@ -231,12 +162,28 @@ public class ListBirdsActivity extends AppCompatActivity {
                 }
             }
             else {
-                if (!lastCategory.equals(bEn.getCategory())) {
-                    birdList.add(new SectionItem(bEn.getCategory()));
+                if (!lastCategory.equals(bEn.getSubcategory())) {
+                    birdList.add(new SectionItem(bEn.getCategory() + " / " + bEn.getSubcategory()));
                 }
-                lastCategory = bEn.getCategory();
+                lastCategory = bEn.getSubcategory();
                 if (Globals.english) {
-                    birdList.add(new EntryItem(bEn.getEnglish() + "\n" + bEn.getWelsh()));
+
+                    String key = getKey(bEn);
+
+                    switch (key){
+                        case "GENERAL":
+                            birdList.add(new EntryItem(bEn.getEnglish() + "\n" + bEn.getWelsh()));
+                            break;
+                        case "RARE":
+                            birdList.add(new RareItem(bEn.getEnglish() + "\n" + bEn.getWelsh()));
+                            break;
+                        case "SUMMER":
+                            birdList.add(new SummerItem(bEn.getEnglish() + "\n" + bEn.getWelsh()));
+                            break;
+                        case "WINTER":
+                            birdList.add(new WinterItem(bEn.getEnglish() + "\n" + bEn.getWelsh()));
+                            break;
+                    }
                 } else {
                     birdList.add(new EntryItem(bEn.getWelsh() + "\n" + bEn.getEnglish()));
                 }
@@ -285,23 +232,6 @@ public class ListBirdsActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Populates the adapter with a list of all the birds
-     */
-    private void populateBirdList(){
-
-        adapter = new ArrayAdapter<String>(this, R.layout.list_item, R.id.bird_name, getBirdList());
-        lstBirds.setAdapter(adapter);
-
-        lstBirds.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView parent, View v, int position, long id) {
-                Globals.selectedBird = adapter.getItem(position);
-                startActivity(new Intent(ListBirdsActivity.this, ViewBirdActivity.class));
-            }
-        });
-
-    }
 
     /**
      * row item
@@ -517,7 +447,7 @@ public class ListBirdsActivity extends AppCompatActivity {
                         for (int i = 0; i < originalItem.size(); i++)
                         {
                             String title = originalItem.get(i).getTitle().toLowerCase(Locale.ENGLISH);
-                            if(title.startsWith(constraint.toString()))
+                            if(title.contains(constraint.toString()))
                             {
                                 filteredArrayList.add(originalItem.get(i));
                             }

@@ -175,6 +175,6 @@ public class BirdEntry implements Comparable<BirdEntry> {
 
     @Override
     public int compareTo(@NonNull BirdEntry o) {
-        return this.getCategory().compareTo(o.getCategory());
+        return (this.getCategory() + this.getSubcategory()).compareTo(o.getCategory() + o.getSubcategory());
     }
 }

@@ -4,12 +4,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+
     <TextView
         android:id="@+id/tvRare"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ff0000"
+        android:background="#78ff0000"
+        android:textColor="#ffffff"
+        android:textSize="16dp"
         android:padding="10dp"
         android:text="Item" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_weight="0.27"
+        android:src="@drawable/rubberduck" />
+
+
+    </LinearLayout>
 
 </LinearLayout>
