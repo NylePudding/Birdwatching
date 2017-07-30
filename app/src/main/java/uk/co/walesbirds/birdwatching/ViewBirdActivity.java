@@ -65,15 +65,22 @@ public class ViewBirdActivity extends AppCompatActivity {
      */
     private void populateDetails(BirdEntry birdEntry){
 
+        String englishName = birdEntry.getEnglish();
+        String englishCaps = englishName.substring(0,1).toUpperCase() + englishName.substring(1);
+        String welshName = birdEntry.getWelsh();
+        String welshCaps = welshName.substring(0,1).toUpperCase() + welshName.substring(1);
+
         if (Globals.english){
-            txtBirdName.setText(birdEntry.getEnglish());
-            txtBirdDetails.setText("Latin: " + birdEntry.getLatin() + "\nEnglish: " +
-                    birdEntry.getEnglish());
+
+
+            txtBirdName.setText(englishCaps);
+            txtBirdDetails.setText("Latin: " + birdEntry.getLatin() + "\nWelsh: " +
+                    welshCaps + "\nWelsh Plural: " + birdEntry.getPlural());
         }
         else {
-            txtBirdName.setText(birdEntry.getWelsh());
-            txtBirdDetails.setText("Latin: " + birdEntry.getLatin() + "\nWelsh: " +
-                    birdEntry.getEnglish() + "\n Welsh Plural: " + birdEntry.getPlural());
+            txtBirdName.setText(welshCaps);
+            txtBirdDetails.setText("Latin: " + birdEntry.getLatin() + "\nEnglish: " +
+                    englishCaps);
         }
 
 
@@ -82,12 +89,10 @@ public class ViewBirdActivity extends AppCompatActivity {
             String fileName = birdEntry.getEnglish().replace(" ","_") + ".jpg";
 
             if (isImageExistant(fileName)){
+
                 File imgFile = getBaseContext().getFileStreamPath(fileName);
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getPath());
-                Toast.makeText(ViewBirdActivity.this,myBitmap.getHeight() + "," + myBitmap.getWidth(), Toast.LENGTH_LONG).show();
                 imgBird.setImageBitmap(myBitmap);
-            } else {
-                Toast.makeText(ViewBirdActivity.this,"DOES NOT EXIST", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -118,6 +123,5 @@ public class ViewBirdActivity extends AppCompatActivity {
         }
 
         return english;
-
     }
 }

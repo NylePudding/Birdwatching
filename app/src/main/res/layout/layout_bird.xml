@@ -22,14 +22,14 @@
             android:textSize="16dp" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/imgIconBird"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_weight="0.27"
-            android:src="@drawable/rubberduck" />
+            android:scaleType="fitXY"/>
 
     </LinearLayout>
 

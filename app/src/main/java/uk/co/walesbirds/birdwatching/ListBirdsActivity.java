@@ -3,6 +3,8 @@ package uk.co.walesbirds.birdwatching;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,9 +18,12 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -30,7 +35,7 @@ public class ListBirdsActivity extends AppCompatActivity {
     private TextView txtKey;
     private ArrayAdapter<String> adapter;
     private EditText inputSearch;
-    private boolean ukList = true;
+    private boolean ukList = false;
 
 
     @Override
@@ -39,7 +44,6 @@ public class ListBirdsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_birds);
 
         txtUkList = (TextView) findViewById(R.id.txtUkList);
-        txtAll = (TextView) findViewById(R.id.txtAll);
         txtKey = (TextView) findViewById(R.id.txtKey);
         lstBirds = (ListView) findViewById(R.id.lstBirds);
         inputSearch = (EditText) findViewById(R.id.txtSearch);
@@ -53,15 +57,14 @@ public class ListBirdsActivity extends AppCompatActivity {
             public void onClick(View v){
 
                 ukList = (!ukList);
+
+                if (ukList){
+                    txtUkList.setText("Global list");
+                } else {
+                    txtUkList.setText("UK list");
+                }
+
                 populateBirdList();
-
-            }
-        });
-
-        txtAll.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v){
             }
         });
 
@@ -232,7 +235,6 @@ public class ListBirdsActivity extends AppCompatActivity {
 
     }
 
-
     /**
      * row item
      */
@@ -380,18 +382,27 @@ public class ListBirdsActivity extends AppCompatActivity {
                 convertView = inflater.inflate(R.layout.layout_rare, parent, false);
                 TextView tvSectionTitle = (TextView) convertView.findViewById(R.id.tvRare);
                 tvSectionTitle.setText(((RareItem) item.get(position)).getTitle());
+                ImageView imgIcon = (ImageView) convertView.findViewById(R.id.imgIconBird);
+                String title = ((RareItem) item.get(position)).getTitle();
+                setIcon(imgIcon,title);
             }
             else if (item.get(position).getItemType() == 'S') {
                 // if section header
                 convertView = inflater.inflate(R.layout.layout_summer, parent, false);
                 TextView tvSectionTitle = (TextView) convertView.findViewById(R.id.tvSummer);
                 tvSectionTitle.setText(((SummerItem) item.get(position)).getTitle());
+                ImageView imgIcon = (ImageView) convertView.findViewById(R.id.imgIconBird);
+                String title = ((SummerItem) item.get(position)).getTitle();
+                setIcon(imgIcon,title);
             }
             else if (item.get(position).getItemType() == 'W') {
                 // if section header
                 convertView = inflater.inflate(R.layout.layout_winter, parent, false);
                 TextView tvSectionTitle = (TextView) convertView.findViewById(R.id.tvWinter);
                 tvSectionTitle.setText(((WinterItem) item.get(position)).getTitle());
+                ImageView imgIcon = (ImageView) convertView.findViewById(R.id.imgIconBird);
+                String title = ((WinterItem) item.get(position)).getTitle();
+                setIcon(imgIcon,title);
             }
             else
             {
@@ -399,9 +410,41 @@ public class ListBirdsActivity extends AppCompatActivity {
                 convertView = inflater.inflate(R.layout.layout_bird, parent, false);
                 TextView tvItemTitle = (TextView) convertView.findViewById(R.id.tvItemTitle);
                 tvItemTitle.setText(((EntryItem) item.get(position)).getTitle());
+                ImageView imgIcon = (ImageView) convertView.findViewById(R.id.imgIconBird);
+                String title = ((EntryItem) item.get(position)).getTitle();
+                setIcon(imgIcon,title);
             }
 
             return convertView;
+        }
+
+        private boolean isImageExistant(String fileName){
+            File file = getBaseContext().getFileStreamPath(fileName);
+            return file.exists();
+        }
+
+        private String getEnglish(String birdName){
+            String selected[] = birdName.split("\n", -1);
+            String english = "";
+
+            if (Globals.english){
+                english = selected[0];
+            } else {
+                english = selected[1];
+            }
+
+            return english;
+        }
+
+        private void setIcon(ImageView imgIcon, String title){
+
+            String fileName = getEnglish(title).replace(" ","_") + ".jpg";
+
+            if (isImageExistant(fileName)){
+                File imgFile = getBaseContext().getFileStreamPath(fileName);
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getPath());
+                imgIcon.setImageBitmap(myBitmap);
+            }
         }
 
         /**

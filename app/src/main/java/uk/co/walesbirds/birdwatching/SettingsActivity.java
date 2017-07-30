@@ -105,7 +105,7 @@ public class SettingsActivity extends AppCompatActivity {
      * @return boolean If the image exists
      */
     private boolean isImageExistant(String fileName){
-        File file = getBaseContext().getFileStreamPath(fileName);
+        File file = getBaseContext().getFileStreamPath(fileName.replace("/","-"));
         return file.exists();
     }
 
@@ -148,12 +148,11 @@ public class SettingsActivity extends AppCompatActivity {
      */
     private void updatePictures(){
 
-        int totalPictures = countPictures();
-        int count = 1;
+        int totalPictures = countUpdatedPictures();
 
         //Create a process dialogue for the download
         mProgressDialog = new ProgressDialog(SettingsActivity.this);
-        mProgressDialog.setMessage("Downloading pictures... " + count + "/" + totalPictures);
+        mProgressDialog.setMessage("Downloading "+ totalPictures + " total pictures");
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCancelable(true);
@@ -171,7 +170,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         });
 
-        count++;
     }
 
     /**
@@ -179,7 +177,6 @@ public class SettingsActivity extends AppCompatActivity {
      */
     private void deletePictures() {
 
-        File dir = getFilesDir();
 
         int count = 0;
 
@@ -187,7 +184,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             if (!bEn.getPictureLink().equals("")){
 
-                String fileName = bEn.getEnglish().replace(" ","_");
+                String fileName = bEn.getEnglish().replace(" ","_") + ".jpg";
                 File file = getBaseContext().getFileStreamPath(fileName);
                 boolean deleted = file.delete();
 
@@ -205,11 +202,10 @@ public class SettingsActivity extends AppCompatActivity {
      */
     private void redownloadPictures(){
         int totalPictures = countPictures();
-        int count = 1;
 
         //Create a process dialogue for the download
         mProgressDialog = new ProgressDialog(SettingsActivity.this);
-        mProgressDialog.setMessage("Downloading pictures... " + count + "/" + totalPictures);
+        mProgressDialog.setMessage("Downloading " + totalPictures + " total pictures");
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCancelable(true);
@@ -226,9 +222,19 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
         });
-
-        count++;
     }
+
+    private String convertPictureLink(String pictureLink){
+        int index = pictureLink.indexOf("open?id=");
+
+        String id = pictureLink.substring(index + 8);
+
+        String finalLink = "https://drive.google.com/uc?export=download&id=" + id;
+
+        return finalLink;
+    }
+
+
 
     /**
      * Gets all the picture links in the list of Bird Entries
@@ -241,7 +247,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         for (BirdEntry bEn : Globals.Birds.BirdEntries){
             //If the picture link is not blank
-            if(!bEn.getPictureLink().equals("")) fileNames[i++] = bEn.getPictureLink();
+            if(!bEn.getPictureLink().equals("")) fileNames[i++] = convertPictureLink(bEn.getPictureLink());
         }
 
         return fileNames;
@@ -259,7 +265,7 @@ public class SettingsActivity extends AppCompatActivity {
         for (BirdEntry bEn : Globals.Birds.BirdEntries){
             //If the picture link is not blank
             if (!isImageExistant(bEn.getEnglish().replace(" ","_") + ".jpg")) {
-                if (!bEn.getPictureLink().equals("")) fileNames[i++] = bEn.getPictureLink();
+                if (!bEn.getPictureLink().equals("")) fileNames[i++] = convertPictureLink(bEn.getPictureLink());
             }
         }
 

@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.provider.Settings;
@@ -44,6 +47,7 @@ public class WelcomeActivity extends AppCompatActivity {
     ImageButton btnUpdate;
     ImageButton btnSettings;
     TextView txtWelcome;
+    TextView txtVer;
     ProgressDialog mProgressDialog;
 
     @Override
@@ -55,8 +59,11 @@ public class WelcomeActivity extends AppCompatActivity {
         btnUpdate = (ImageButton) findViewById(R.id.ibtnUpdate);
         btnSettings = (ImageButton) findViewById(R.id.ibtnSettings);
         txtWelcome = (TextView) findViewById(R.id.txtWelcome);
+        txtVer = (TextView) findViewById(R.id.txtVer);
 
-        download();
+        txtVer.setText("Latest update: " + getLastUpdateDate());
+
+        if (isNetworkAvailable()) download();
 
         if (Globals.english){
             txtWelcome.setText("Select a category for translations");
@@ -65,22 +72,17 @@ public class WelcomeActivity extends AppCompatActivity {
             txtWelcome.setText("<WELSH PLACEHOLDER TEXT>");
         }
 
-        if (isFileUpToDate()){
-            btnUpdate.setEnabled(false);
-        } else {
-            btnUpdate.setEnabled(true);
-        }
-
         btnListBirds.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
 
-                if (!isFileExistant()){
-                    download();
-                }
                 if (Globals.Birds.BirdEntries.size() == 0){
-                    initiateBirdEntries();
+                    if (isFileExistant()) {
+                        initiateBirdEntries(true);
+                    } else {
+                        initiateBirdEntries(false);
+                    }
                 }
 
                 startActivity(new Intent(WelcomeActivity.this, ListBirdsActivity.class));
@@ -99,7 +101,7 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 if (Globals.Birds.BirdEntries.size() == 0){
-                    initiateBirdEntries();
+                    initiateBirdEntries(true);
                 }
                 startActivity(new Intent(WelcomeActivity.this, SettingsActivity.class));
             }
@@ -130,25 +132,71 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     /**
-     * Methods for checking if the file is up to date
-     * @return boolean If the file is up to date
+     *
+     * @return boolean Is there internet connection
      */
-    private boolean isFileUpToDate(){
-        return true;
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private String getLastUpdateDate(){
+        String date = "";
+        String cvsSplitBy = ",";
+
+        try {
+            FileInputStream fis = null;
+            InputStreamReader isr = null;
+
+            //If there is a downloaded copy of birds.csv
+            if (isFileExistant()) {
+                //Use that for file input
+                fis = openFileInput("birds.csv");
+                isr = new InputStreamReader(fis);
+            } else {  //Use permanent copy (probably out of date)
+                AssetManager am = getAssets();
+                isr = new InputStreamReader(am.open("birds.csv"));
+            }
+
+            BufferedReader br = new BufferedReader(isr);
+
+            String line = br.readLine();
+            String row[] = line.split(cvsSplitBy, -1);
+            date = row[0].substring(0,10);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return date;
     }
 
     /**
      * Method for initiating all the BirdEntry objects from "birds.csv" for reading
      */
-    private void initiateBirdEntries(){
+    private void initiateBirdEntries(boolean intneralStorage){
 
         InputStream is = null;
         String cvsSplitBy = ",";
 
         try {
 
-            FileInputStream fis = openFileInput("birds.csv");
-            InputStreamReader isr = new InputStreamReader(fis);
+            FileInputStream fis = null;
+            InputStreamReader isr = null;
+
+            //If there is a downloaded copy of birds.csv
+            if (intneralStorage){
+                //Use that for file input
+                fis = openFileInput("birds.csv");
+                isr = new InputStreamReader(fis);
+            }
+            else {  //Use permanent copy (probably out of date)
+                AssetManager am = getAssets();
+                isr = new InputStreamReader(am.open("birds.csv"));
+            }
+
             BufferedReader br = new BufferedReader(isr);
 
             List<String> lines = new ArrayList<>();
@@ -317,22 +365,22 @@ public class WelcomeActivity extends AppCompatActivity {
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     getClass().getName());
             mWakeLock.acquire();
-            mProgressDialog.show();
+            //mProgressDialog.show();
         }
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
             super.onProgressUpdate(progress);
             // if we get here, length is known, now set indeterminate to false
-            mProgressDialog.setIndeterminate(false);
-            mProgressDialog.setMax(100);
-            mProgressDialog.setProgress(progress[0]);
+            //mProgressDialog.setIndeterminate(false);
+            //mProgressDialog.setMax(100);
+            //mProgressDialog.setProgress(progress[0]);
         }
 
         @Override
         protected void onPostExecute(String result) {
             mWakeLock.release();
-            mProgressDialog.dismiss();
+            //mProgressDialog.dismiss();
             if (result != null)
                 Toast.makeText(context,"Download error: "+result, Toast.LENGTH_LONG).show();
             else
@@ -347,15 +395,16 @@ public class WelcomeActivity extends AppCompatActivity {
      */
     private void download(){
 
-        mProgressDialog = new ProgressDialog(WelcomeActivity.this);
-        mProgressDialog.setMessage("Downloading data...");
-        mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDialog.setCancelable(true);
+        //mProgressDialog = new ProgressDialog(WelcomeActivity.this);
+        //mProgressDialog.setMessage("Downloading data...");
+        //mProgressDialog.setIndeterminate(true);
+        //mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        //mProgressDialog.setCancelable(true);
 
         final DownloadTask downloadTask = new DownloadTask(WelcomeActivity.this);
         downloadTask.execute("https://docs.google.com/spreadsheets/d/1fmy92PagupIXIo8zExLhGSNjxVKKz493jgTxOly595A/export?format=csv");
 
+        /*
         mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -363,5 +412,6 @@ public class WelcomeActivity extends AppCompatActivity {
             }
 
         });
+        */
     }
 }
