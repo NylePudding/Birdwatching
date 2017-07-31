@@ -11,7 +11,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +34,9 @@ public class SettingsActivity extends AppCompatActivity {
     Button btnUpdatePictures;
     Button btnReloadPictures;
     Button btnDeletePictures;
+    TextView txtUpdate;
+    TextView txtReload;
+    TextView txtDelete;
     ProgressDialog mProgressDialog;
 
 
@@ -43,26 +49,18 @@ public class SettingsActivity extends AppCompatActivity {
         btnUpdatePictures = (Button) findViewById(R.id.btnUpdatePictures);
         btnReloadPictures = (Button) findViewById(R.id.btnReloadPictures);
         btnDeletePictures = (Button) findViewById(R.id.btnDeletePictures);
+        txtUpdate = (TextView) findViewById(R.id.txtUpdate);
+        txtReload = (TextView) findViewById(R.id.txtReload);
+        txtDelete = (TextView) findViewById(R.id.txtDelete);
 
-        if (!Globals.english){
-            swLanguage.setChecked(true);
-            swLanguage.setText("Welsh");
-        }
-
+        setLanguage(Globals.english);
 
         swLanguage.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Globals.english = !(Globals.english);
-
-                if (Globals.english){
-                    swLanguage.setText("English");
-                } else {
-                    swLanguage.setText("Welsh");
-                }
-
-                System.out.println("ENGLISH??? " + Globals.english);
+                setLanguage(Globals.english);
             }
 
         });
@@ -72,7 +70,6 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 System.out.println("Number of pictures: " + countPictures());
-
                 updatePictures();
 
             }
@@ -97,6 +94,28 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    private void setLanguage(boolean english){
+        if (english){
+            swLanguage.setChecked(false);
+            swLanguage.setText("English");
+            btnUpdatePictures.setText("UPDATE PICTURES");
+            txtUpdate.setText("Download any pictures you don't have.");
+            btnReloadPictures.setText("RELOAD PICTURES");
+            txtReload.setText("Delete and reload all pictures");
+            btnDeletePictures.setText("DELETE PICTURES");
+            txtDelete.setText("This will delete all pictures");
+        } else {
+            swLanguage.setChecked(true);
+            swLanguage.setText("Cyrmraeg");
+            btnUpdatePictures.setText("WW UPDATE PICTURES WW");
+            txtUpdate.setText("WW Download any pictures you don't have. WW");
+            btnReloadPictures.setText("WW RELOAD PICTURES WW");
+            txtReload.setText("WW Delete and reload all pictures WW");
+            btnDeletePictures.setText("WW DELETE PICTURES WW");
+            txtDelete.setText("WW This will delete all pictures WW");
+        }
     }
 
     /**
@@ -195,6 +214,8 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
+        Toast.makeText(getBaseContext(),"Pictures deleted...", Toast.LENGTH_SHORT).show();
+
     }
 
     /**
@@ -205,7 +226,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         //Create a process dialogue for the download
         mProgressDialog = new ProgressDialog(SettingsActivity.this);
-        mProgressDialog.setMessage("Downloading " + totalPictures + " total pictures");
+        mProgressDialog.setMessage("Downloading " + totalPictures + " total pictures...");
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCancelable(true);

@@ -57,13 +57,11 @@ public class ListBirdsActivity extends AppCompatActivity {
             public void onClick(View v){
 
                 ukList = (!ukList);
-
                 if (ukList){
                     txtUkList.setText("Global list");
                 } else {
                     txtUkList.setText("UK list");
                 }
-
                 populateBirdList();
             }
         });
@@ -75,8 +73,6 @@ public class ListBirdsActivity extends AppCompatActivity {
                 displayKey();
             }
         });
-
-
 
     }
 

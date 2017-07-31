@@ -63,7 +63,10 @@ public class WelcomeActivity extends AppCompatActivity {
 
         txtVer.setText("Latest update: " + getLastUpdateDate());
 
+        //Download latest version if there is an internet connection
         if (isNetworkAvailable()) download();
+        txtVer.setText("Latest update: " + getLastUpdateDate());
+
 
         if (Globals.english){
             txtWelcome.setText("Select a category for translations");
@@ -84,7 +87,6 @@ public class WelcomeActivity extends AppCompatActivity {
                         initiateBirdEntries(false);
                     }
                 }
-
                 startActivity(new Intent(WelcomeActivity.this, ListBirdsActivity.class));
             }
         });
@@ -132,7 +134,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     *  A method to determine if the device is connected to the internet
      * @return boolean Is there internet connection
      */
     private boolean isNetworkAvailable() {
@@ -155,7 +157,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 //Use that for file input
                 fis = openFileInput("birds.csv");
                 isr = new InputStreamReader(fis);
-            } else {  //Use permanent copy (probably out of date)
+            } else {  //Use permanent copy (out of date)
                 AssetManager am = getAssets();
                 isr = new InputStreamReader(am.open("birds.csv"));
             }
@@ -257,7 +259,7 @@ public class WelcomeActivity extends AppCompatActivity {
     /**
      * Method for getting the column indexes for the different birds
      * @param line The line of column headings
-     * @return int[] The indexes for teh column headings
+     * @return int[] The indexes for the column headings
      */
     private static int[] getColumnIndexes(String line){
 
@@ -380,7 +382,6 @@ public class WelcomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             mWakeLock.release();
-            //mProgressDialog.dismiss();
             if (result != null)
                 Toast.makeText(context,"Download error: "+result, Toast.LENGTH_LONG).show();
             else
@@ -394,24 +395,7 @@ public class WelcomeActivity extends AppCompatActivity {
      * Method for downloading the Bird data file
      */
     private void download(){
-
-        //mProgressDialog = new ProgressDialog(WelcomeActivity.this);
-        //mProgressDialog.setMessage("Downloading data...");
-        //mProgressDialog.setIndeterminate(true);
-        //mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        //mProgressDialog.setCancelable(true);
-
         final DownloadTask downloadTask = new DownloadTask(WelcomeActivity.this);
         downloadTask.execute("https://docs.google.com/spreadsheets/d/1fmy92PagupIXIo8zExLhGSNjxVKKz493jgTxOly595A/export?format=csv");
-
-        /*
-        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                downloadTask.cancel(true);
-            }
-
-        });
-        */
     }
 }
