@@ -7,6 +7,22 @@
     tools:context="uk.co.walesbirds.birdwatching.ListBirdsActivity"
     android:background="@drawable/background">
 
+
+    <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
+
+    <!-- :nextFocusUp and :nextFocusLeft have been set to the id of this component
+    to prevent the dummy from receiving focus again -->
+    <AutoCompleteTextView android:id="@+id/autotext"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:nextFocusUp="@id/autotext"
+        android:nextFocusLeft="@id/autotext"/>
+
     <EditText
         android:id="@+id/txtSearch"
         android:layout_width="352dp"
@@ -16,14 +32,16 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:ems="10"
-        android:inputType="textPersonName"
         android:backgroundTint="#3f51b5"
+        android:ems="10"
+        android:hint="Search..."
+        android:inputType="text|textPersonName"
+        android:selectAllOnFocus="false"
+        android:textColor="#3f51b5"
         android:textCursorDrawable="@null"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/relativeLayout"
-        tools:text="Search" />
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
 
     <ListView
         android:id="@+id/lstBirds"
